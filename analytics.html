@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZ TALLY</title>
+    <link rel="stylesheet" href="/static/css/analytics.css">
+</head>
+
+<body>
+    <div class="container">
+        <main>
+            <h1>Analytics</h1>
+            <div class="charts">
+                <div class="chart">
+                    <h2>Stock</h2>
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    const ct = document.getElementById('barChart').getContext('2d');
+    const chart_data = []
+    const lab=[]
+    {% for pro in data %}
+    lab.push("{{ pro['name'] }}");
+    chart_data.push("{{ pro['stock'] }}");
+    {% endfor %}
+    const myChart = new Chart(ct, {
+        type: 'bar',
+        data: {
+            labels: lab,
+            datasets: [{
+                label: 'Stock of Product',
+                data: chart_data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            scale:{
+                x:{
+                    suggestedMax:100
+                }
+            }
+        }
+    });
+</script>
+
+</html>

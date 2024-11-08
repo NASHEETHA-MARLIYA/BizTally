@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>BIZ TALLY</title>
+        <link rel="stylesheet" href="/static/css/productpage.css">
+    </head>
+<body>
+    <h1>BIZ TALLY</h1>
+    <div class="container3">
+        <div class="inputdiv">
+            <h4>Product Details</h4>
+            <table border="1px">
+                <thead>
+                    <td>Product Name</td>
+                    <td> per kg Price</td>
+                    <td>Stock</td>
+                    <td>Operations</td>
+                </thead>
+                <tbody id="tbody">
+                    {% for pro in data %}
+                    <tr>
+                        <td>{{ pro["name"] }}</td>
+                        <td>{{ pro["price"] }}</td>
+                        <td>{{ pro["stock"] }}</td>
+                        <td id="{{ pro['name'] }}"><button onclick=updatestk(this)>Update Stock</button></td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+    </div>
+    <div class="container3">
+        <div class="inputdiv">
+            <h4>Stock Info</h4>
+            <table border="1px">
+                <thead>
+                    <td>Product Name</td>
+                    <td>Stock request</td>
+                    <td>Status</td>
+                </thead>
+                <tbody id="tbody">
+                    {% for pro in stkd %}
+                    <tr>
+                        <td>{{ pro["name"] }}</td>
+                        <td>{{ pro["stockinc"] }}</td>
+                        <td>{{ pro["status"] }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+    </div>
+</body>
+<script type="text/javascript">
+    function updatestk(obj){
+        var td=event.target.parentNode
+        var f=td.getAttribute('id')
+        var add=prompt("Enter the increase of stock")
+        allval={"nam":f,"stockin":add}
+        fetch('/addstk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([allval])
+            }).then(response => response.json())
+                .then(mage => {
+                    //console.log(data);
+                    alert(mage['message']);
+                    window.location.href="/productpage"
+                    
+
+                    // This will log the response from the Flask server
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+    }
+</script>
+</html>

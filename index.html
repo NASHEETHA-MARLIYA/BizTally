@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZ TALLY</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+
+<body>
+    <h1>BIZ TALLY</h1>
+    <div class="divleft">
+        <div class="container">
+            <div class="inputdiv">
+                <h3>Customer Details</h3>
+                <label>Name :</label>
+                <input type="text" id="username" placeholder="Enter name"></input>
+            </div>
+            <div class="inputdiv">
+                <label>Phone :</label>
+                <input type="text" id="phone" placeholder="Enter phoneno"></input>
+            </div>
+            <div class="inputdiv">
+                <label>Address:</label>
+                <input type="textarea" id="address" placeholder="Enter Address"></input>
+            </div>
+        </div>
+        <div class="container2">
+            <h3>Order Details</h3>
+            <div class="inputdiv">
+
+                <label>Product Name:</label>
+                <input type="text" id="item" placeholder="Type a name here..." />
+                <ul class="list"></ul>
+            </div>
+            <div class="inputdiv">
+                <label>Price:</label>
+                <input type="text" placeholder="Price" id="price"></input>
+            </div>
+            <div class="inputdiv">
+                <label>Quantity:</label>
+                <input type="text" placeholder="Quantity" id="quantity"></input>
+            </div>
+        </div>
+    </div>
+    <div class="divright">
+        <div class="btncontainer">
+            <button id="but" onclick="submit()">Add</button>
+            <button id="but" onclick="passData()">Export</button>
+        </div>
+
+        <div class="container3">
+            <div class="inputdiv">
+                <h3>Biz Tally</h3>
+                <h4>Invoice</h4>
+                <table border="1px">
+                    <thead>
+                        <td>S.no</td>
+                        <td>Product purchased</td>
+                        <td> per kg Price</td>
+                        <td>purchased Quantity</td>
+                        <td>Total price</td>
+                        <td>Operations</td>
+                    </thead>
+                    <tbody id="tbody">
+
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+    <a id="downloadLink" style="display: none;"></a>
+
+    <script>
+        var val = {}
+        {% for product in data %}
+        val["{{product['name']}}"] = "{{product['price']}}";
+        {% endfor %}
+        console.log(val);
+        var names = Object.keys(val);
+        console.log(names);
+
+        let sortedNames = names.sort();
+
+        let item = document.getElementById("item");
+        let price = document.getElementById("price");
+        let username = document.getElementById("username");
+        let phone = document.getElementById("phone");
+        let address = document.getElementById("address");
+        let quantity = document.getElementById("quantity");
+
+        item.addEventListener("keyup", (e) => {
+
+            removeElements();
+
+            for (let i of sortedNames) {
+
+
+
+                if (
+
+                    i.toLowerCase().startsWith(item.value.toLowerCase()) &&
+
+                    item.value != ""
+
+                ) {
+
+                    let listItem = document.createElement("li");
+
+
+
+                    listItem.classList.add("list-items");
+
+                    listItem.style.cursor = "pointer";
+
+                    listItem.setAttribute("onclick", "displayNames('" + i + "')");
+
+                    let word = "<b>" + i.substr(0, item.value.length) + "</b>";
+
+                    word += i.substr(item.value.length);
+
+                    listItem.innerHTML = word;
+
+                    document.querySelector(".list").appendChild(listItem);
+
+                }
+
+            }
+
+        });
+
+        function displayNames(value) {
+
+            item.value = value;
+            price.value = val[value]
+
+            removeElements();
+
+        }
+
+        function removeElements() {
+
+            let items = document.querySelectorAll(".list-items");
+
+            items.forEach((item) => {
+
+                item.remove();
+
+            });
+
+        }
+        product_data = [];
+        function submit() {
+            var found = true;
+            var result = {
+                "username": username.value,
+                "phone": phone.value,
+                "address": address.value,
+                "item": item.value,
+                "price": price.value,
+                "quantity": quantity.value
+            }
+            for (const [key, value] of Object.entries(result)) {
+                if (result[key] == "") {
+                    alert("Enter the value of " + key);
+                    found = false;
+                    break;
+                }
+            }
+            if(result["phone"].length!=10){
+                found=false;
+                alert("Enter a valid phone number");
+            }
+            if (found) {
+                product_data.push(result);
+                text = ``;
+                count = 1;
+                product_data.forEach(element => {
+                    totalprice = parseInt(element["price"]) * parseInt(element["quantity"]);
+                    text += `<tr>
+                            <td>${count}</td>
+                            <td>${element["item"]}</td>
+                            <td>${element["price"]}</td>
+                            <td>${element["quantity"]}</td>
+                            <td>${totalprice}</td>
+                            <td><button onclick="update(${count})">Update</button><button class="delete" onclick="remo(${count})">Delete</button></td>
+                            </tr>`
+
+                    count += 1;
+                });
+                document.getElementById("tbody").innerHTML = text;
+                item.value = "";
+                price.value = "";
+                quantity.value = "";
+            }
+
+
+
+        }
+        function remo(val) {
+            delete product_data[val - 1];
+            text = ``;
+            count = 1;
+            product_data.forEach(element => {
+                totalprice = parseInt(element["price"]) * parseInt(element["quantity"]);
+                text += `<tr>
+                            <td>${count}</td>
+                            <td>${element["item"]}</td>
+                            <td>${element["price"]}</td>
+                            <td>${element["quantity"]}</td>
+                            <td>${totalprice}</td>
+                            <td><button onclick="update(${count})">Update</button><button class="delete" onclick="remo(${count})">Delete</button></td>
+                            </tr>`
+
+                count += 1;
+            });
+            document.getElementById("tbody").innerHTML = text;
+
+        }
+        function update(val) {
+            item.value = product_data[val - 1]["item"];
+            price.value = product_data[val - 1]["price"];
+            quantity.value = product_data[val - 1]["quantity"];
+            delete product_data[val - 1];
+        }
+
+        function passData() {
+            productset = {}
+            sum = 0
+            product_data.forEach(element => {
+                sum += parseInt(element["price"]) * parseInt(element["quantity"]);
+                productset[element["item"]] = parseInt(element["quantity"]);
+            });
+            allval = {
+                "username": product_data[0]["username"],
+                "userphoneno": product_data[0]["phone"],
+                "useraddress": product_data[0]["address"],
+                "product": productset,
+                "totalprice": sum
+            }
+
+            fetch('/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([allval])
+            }).then(response => response.json())
+                .then(data => {
+                    //console.log(data);
+                    alert("Your invoice " + data['message'] + " will be downloaded");
+                    window.location.href="/download/"+data['message'];
+                    
+
+                    // This will log the response from the Flask server
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            item.value = "";
+            price.value = "";
+            quantity.value = "";
+            username.value = "";
+            phone.value = "";
+            address.value = "";
+            product_data = [];
+            document.getElementById("tbody").innerHTML = ``;
+
+        }
+
+
+
+    </script>
+</body>
+
+</html>
